@@ -1,0 +1,17 @@
+# Ignorar arquivos de dados locais (para não vazar nomes de pacientes)
+*.csv
+*.xlsx
+atendimentos.csv
+
+# Ignorar arquivos de controle local
+contador.txt
+
+# Ignorar arquivos de sistema e cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignorar ambientes virtuais (se você criar um no futuro)
+venv/
+.env
+.DS_Store
