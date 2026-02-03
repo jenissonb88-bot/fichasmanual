@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Atendimento - CEMEC</title>
+    <style>
+        /* ESTILO GERAL DA TELA */
+        body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; padding: 20px; }
+        .page-container {
+            background: white; width: 210mm; min-height: 297mm; margin: auto;
+            padding: 15mm; box-shadow: 0 0 10px rgba(0,0,0,0.1); box-sizing: border-box;
+            border: 1px solid #ccc;
+        }
+        
+        /* CABEÇALHO */
+        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+        .header h2 { margin: 5px 0; font-size: 16px; text-transform: uppercase; }
+        .header h1 { margin: 5px 0; font-size: 18px; font-weight: bold; }
+        .reg-box { 
+            float: right; border: 2px solid red; padding: 5px 10px; 
+            color: red; font-weight: bold; font-size: 16px; margin-top: -50px; 
+        }
+
+        /* ESTRUTURA DO FORMULÁRIO */
+        .section-title { 
+            background: #eee; font-weight: bold; padding: 4px; 
+            border: 1px solid #000; margin-top: 10px; font-size: 12px;
+        }
+        .row { display: flex; gap: 10px; margin-bottom: 5px; align-items: flex-end; }
+        .field { display: flex; flex-direction: column; }
+        .field.grow { flex-grow: 1; }
+        
+        label { font-size: 11px; font-weight: bold; margin-bottom: 2px; }
+        input, select, textarea {
+            border: 1px solid #999; padding: 4px; font-size: 12px; font-family: Arial;
+            background: #fafafa;
+        }
+        input:focus { background: #e8f0fe; border-color: #007bff; outline: none; }
+        
+        /* CAMPOS ESPECÍFICOS */
+        .w-small { width: 60px; }
+        .w-medium { width: 120px; }
+        .sinais-vitais { 
+            display: flex; gap: 15px; border: 1px solid #000; padding: 10px; margin-top: 5px; 
+            justify-content: space-around; background: #fff;
+        }
+
+        /* BOTÕES DE AÇÃO (Não aparecem na impressão) */
+        .actions { 
+            position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; 
+        }
+        .btn {
+            padding: 15px 20px; border: none; color: white; cursor: pointer; 
+            font-weight: bold; border-radius: 5px; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .btn-print { background: #2980b9; }
+        .btn-new { background: #27ae60; }
+        .btn:hover { opacity: 0.9; }
+
+        /* ESTILO DE IMPRESSÃO */
+        @media print {
+            body { background: white; padding: 0; }
+            .page-container { box-shadow: none; border: none; margin: 0; width: 100%; }
+            .actions { display: none; }
+            input, select, textarea { border: none; border-bottom: 1px solid #000; background: transparent; padding: 0; }
+            /* Remove setas dos inputs numéricos na impressão */
+            input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+            .section-title { background-color: #ddd !important; -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="actions">
+        <button class="btn btn-print" onclick="imprimirFicha()">🖨️ IMPRIMIR FICHA</button>
+        <button class="btn btn-new" onclick="proximoPaciente()">➕ PRÓXIMO PACIENTE</button>
+    </div>
+
+    <div class="page-container">
+        
+        <div class="header">
+            <h3>PREFEITURA DE CAMARAGIBE - SECRETARIA DE SAÚDE</h3>
+            <h2>UNIDADE DE SAÚDE: CEMEC</h2> <h1>FICHA DE ATENDIMENTO DE URGÊNCIA</h1> <div class="reg-box">REG. Nº <span id="regDisplay">...</span></div> </div>
+
+        <div class="row">
+            <div class="field">
+                <label>DATA:</label>
+                <input type="text" id="dataAtual" class="w-medium">
+            </div>
+            <div class="field">
+                <label>HORA:</label>
+                <input type="time" id="horaAtual">
+            </div>
+            <div class="field grow">
+                <label>RECEPCIONISTA:</label> <input type="text">
+            </div>
+        </div>
+
+        <div class="section-title">1. IDENTIFICAÇÃO DO PACIENTE</div> <div class="row">
+            <div class="field grow">
+                <label>NOME COMPLETO:</label>
+                <input type="text" id="nomePaciente">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="field">
+                <label>DATA NASC.:</label>
+                <input type="date" id="dataNasc" onblur="calcularIdade()">
+            </div>
+            <div class="field">
+                <label>IDADE:</label>
+                <input type="number" id="idade" class="w-small" readonly>
+            </div>
+            <div class="field">
+                <label>SEXO:</label>
+                <select><option>M</option><option>F</option></select>
+            </div>
+            <div class="field grow">
+                <label>NOME DA MÃE:</label>
+                <input type="text">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="field grow">
+                <label>ENDEREÇO:</label>
+                <input type="text">
+            </div>
+            <div class="field">
+                <label>BAIRRO:</label>
+                <input type="text">
+            </div>
+            <div class="field">
+                <label>TEL:</label>
+                <input type="text" class="w-medium">
+            </div>
+        </div>
+        
+        <div class="row">
+             <div class="field grow">
+                <label>CARTÃO SUS / CPF:</label>
+                <input type="text">
+            </div>
+        </div>
+
+        <div class="section-title">2. ACOLHIMENTO E CLASSIFICAÇÃO DE RISCO</div> <div class="field" style="width: 100%; margin-top: 5px;">
+            <label>QUEIXA PRINCIPAL / HISTÓRIA:</label> <textarea rows="3" style="width: 100%; resize: none;"></textarea>
+        </div>
+
+        <div class="sinais-vitais"> <div class="field"><label>PA (mmHg)</label><input type="text" class="w-small"></div>
+            <div class="field"><label>FC (bpm)</label><input type="number" class="w-small"></div>
+            <div class="field"><label>TEMP (ºC)</label><input type="number" class="w-small"></div>
+            <div class="field"><label>HGT (mg/dl)</label><input type="number" class="w-small"></div>
+            <div class="field"><label>SAT O2 (%)</label><input type="number" class="w-small"></div>
+            <div class="field"><label>PESO (Kg)</label><input type="number" class="w-small"></div>
+        </div>
+
+        <div class="row" style="margin-top: 10px;">
+            <div class="field grow">
+                <label>COMORBIDADES/ALERGIAS:</label>
+                <input type="text" placeholder="Ex: Hipertensão, Diabetes, Alergia a Dipirona...">
+            </div>
+            <div class="field">
+                <label>COR CLASSIFICAÇÃO:</label>
+                <select><option>AZUL</option><option>VERDE</option><option>AMARELO</option><option>VERMELHO</option></select>
+            </div>
+        </div>
+
+        <div class="section-title">3. ATENDIMENTO MÉDICO</div> <div class="row">
+            <div class="field grow">
+                <label>EXAME FÍSICO / EVOLUÇÃO:</label>
+                <textarea rows="5" style="width: 100%; resize: none;"></textarea>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="field grow">
+                <label>HIPÓTESE DIAGNÓSTICA:</label>
+                <input type="text">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="field grow">
+                <label>CONDUTA / PRESCRIÇÃO:</label>
+                <textarea rows="3" style="width: 100%; resize: none;"></textarea>
+            </div>
+        </div>
+
+        <div class="section-title">4. DESTINO DO PACIENTE</div> <div class="row" style="flex-wrap: wrap; font-size: 11px;">
+            <label><input type="checkbox"> ALTA MÉDICA</label>
+            <label><input type="checkbox"> OBSERVAÇÃO</label>
+            <label><input type="checkbox"> TRANSFERÊNCIA</label>
+            <label><input type="checkbox"> ÓBITO</label>
+            <label><input type="checkbox"> EVASÃO</label>
+        </div>
+
+        <br><br><br>
+        <div style="text-align: center; border-top: 1px solid #000; width: 50%; margin: auto;">
+            ASSINATURA E CARIMBO DO PROFISSIONAL </div>
+
+    </div>
+
+    <script>
+        // --- LÓGICA DO SISTEMA ---
+
+        // 1. Inicialização: Define número e data
+        window.onload = function() {
+            carregarNumeroRegistro();
+            definirDataHora();
+        };
+
+        function definirDataHora() {
+            const agora = new Date();
+            // Formata data DD/MM/AAAA
+            const dataStr = agora.toLocaleDateString('pt-BR');
+            document.getElementById('dataAtual').value = dataStr;
+            // Formata hora HH:MM
+            const horaStr = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('horaAtual').value = horaStr;
+        }
+
+        // 2. Numeração Automática (Usa memória do navegador)
+        function carregarNumeroRegistro() {
+            let ultimoReg = localStorage.getItem('cemec_reg_atual');
+            if (!ultimoReg) {
+                ultimoReg = 901; // Começa em 901 se for a primeira vez
+            } else {
+                ultimoReg = parseInt(ultimoReg);
+            }
+            document.getElementById('regDisplay').innerText = ultimoReg;
+        }
+
+        // 3. Incrementa o número para o próximo
+        function proximoPaciente() {
+            if(confirm("Deseja limpar a tela e gerar o próximo número de registro?")) {
+                let atual = parseInt(document.getElementById('regDisplay').innerText);
+                let proximo = atual + 1;
+                
+                // Salva na memória do navegador
+                localStorage.setItem('cemec_reg_atual', proximo);
+                
+                // Recarrega a página para limpar e mostrar o novo número
+                location.reload(); 
+            }
+        }
+
+        // 4. Imprimir
+        function imprimirFicha() {
+            window.print();
+        }
+
+        // 5. Cálculo de Idade
+        function calcularIdade() {
+            const inputNasc = document.getElementById('dataNasc').value;
+            if (inputNasc) {
+                const hoje = new Date();
+                const nasc = new Date(inputNasc);
+                let idade = hoje.getFullYear() - nasc.getFullYear();
+                const m = hoje.getMonth() - nasc.getMonth();
+                
+                if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) {
+                    idade--;
+                }
+                
+                document.getElementById('idade').value = idade;
+            }
+        }
+    </script>
+</body>
+</html>
